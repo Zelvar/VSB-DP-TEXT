@@ -1,0 +1,342 @@
+\documentclass[czech,master,dept460,male,cpp,cpdeclaration]{diploma}
+
+%%% TOHLE TO DĚLÁ %,czech=quotes
+\usepackage[autostyle=true]{csquotes} % korektni sazba uvozovek, podpora pro balik biblatex
+%\usepackage[autostyle=true,czech=quotes]{csquotes} % korektni sazba uvozovek, podpora pro balik biblatex
+\usepackage[backend=biber, style=iso-numeric, alldates=iso]{biblatex} % bibliografie
+\usepackage{dcolumn} % sloupce tabulky s ciselnymi hodnotami
+\usepackage{subfig} % makra pro "podobrazky" a "podtabulky"
+\usepackage{verbatim}
+
+\usepackage{pgfplots} % grafy
+\pgfplotsset{minor grid style={dashed,gray}}
+\pgfplotsset{compat=1.15}
+
+\usepackage{makecell} %% tabulky
+
+\usepackage{hyperref} % URL
+
+\usepackage{amssymb} % Unicode znaky
+
+\usepackage{float} % position
+
+% Zadame pozadovane vstupy pro generovani titulnich stran.
+\ThesisAuthor{Bc. Jan Hložek}
+\CzechThesisTitle{Metody statické analýzy malware}
+\EnglishThesisTitle{Methods of the Static Malware Analysis}
+\SubmissionDate{30. dubna 2020}
+
+% Pokud nechceme nikomu dekovat makro zapoznamkujeme.
+\Thanks{Rád bych poděkoval prof. Ing. Ivanu Zelinkovi, Ph.D. za věcné poznámky a odborné vedení mé diplomové práce.}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Zadame cestu a jmeno souboru ci nekolika souboru s digitalizovanou podobou zadani prace.
+% Pokud toto makro zapoznamkujeme sazi se stranka s upozornenim.
+\ThesisAssignmentImagePath{Figures/00}
+
+% Zadame soubor s digitalizovanou podobou prohlaseni autora zaverecne prace.
+% Pokud toto makro zapoznamkujeme sazi se cisty text prohlaseni.
+\AuthorDeclarationImageFile{Figures/samostatne.png}
+
+% Zadame soubor s digitalizovanou podobou souhlasu spolupracujici prav. nebo fyz. osoby.
+% Pokud toto makro zapoznamkujeme sazi se cisty text souhlasu.
+\CooperatingPersonsDeclarationImageFile{Figures/zverejneni.png}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\CzechAbstract{Autor se v této diplomové práci zabývá především statickou analýzou. Na základě předložené rešerše obsahující jak informace o analýze malwaru a současných trendech v této oblasti, tak~i~možnostech obrany malwaru před takovou analýzou, nabízí své řešení pomocí statické analýzy. Své řešení poté dále testuje se sadou vzorků legitimního softwaru a malwaru. Výstupem pak je~řada parametrů jako jsou například kódem použité nástroje, knihovny, řetězce, entropie kódu nebo výskyt použitých pravidel Yara. Na základě těchto výstupů pak autor dokazuje, že jím předložené řešení je funkční.}
+
+\CzechKeywords{statická analýza, analýza malwaru, kybernetická obrana, formát spustitelných souborů, ochrana spustitelných souborů}
+
+\EnglishAbstract{In this diploma thesis, the author focuses mainly on static analysis. Based on the submitted research of literature, which contains information about the analysis of malware and current trends in this area, as well as the possibilities of defending malware against such analysis, the author offers his own solution using static analysis. His solution is then further tested with set of samples of legitimate software and malware. The output is several parameters such as the code of the tool used, the library, strings, the entropy of the~code or the occurrence of the Yara rules used. Based on these outputs, the author proves that the solution presented by him is~functional.}
+
+\EnglishKeywords{static analysis, malware analysis, cyber defence, executable file formats, executable file protection}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\AddAcronym{IEEE}{Institute of Electrical and Electronics Engineers}
+\AddAcronym{CnC}{Command-and-Control server}
+\AddAcronym{VBox}{VirtualBox}
+\AddAcronym{OS}{Operační systém}
+\AddAcronym{VM}{Virtual Machine}
+\AddAcronym{HW}{Hardware}
+\AddAcronym{SW}{Software}
+\AddAcronym{MIME}{Multipurpose Internet Mail Extensions}
+\AddAcronym{XOR}{Exkluzivní disjunkce}
+\AddAcronym{PE}{Portable Executable}
+\AddAcronym{ELF}{Executable and Linkable Format}
+\AddAcronym{PEB}{Process Environment Block}
+\AddAcronym{TLS}{Thread Local Storage}
+\AddAcronym{ABI}{Application binary interface}
+\AddAcronym{PE}{Portable Executable}
+\AddAcronym{NE}{New Executable}
+\AddAcronym{ELF}{Executable and Linkable Format}
+\AddAcronym{COFF}{Common Object File Format}
+\AddAcronym{ČSÚ}{Český statistický úřad}
+\AddAcronym{EP}{Entry Point}
+\AddAcronym{API}{Application Programming Interface}
+\AddAcronym{XML}{Extensible Markup Language}
+\AddAcronym{PHP}{Hypertext Preprocessor}
+\AddAcronym{GUI}{Graphic User Interface}
+
+\addbibresource{citace.bib}
+
+% Novy druh tabulkoveho sloupce, ve kterem jsou cisla zarovnana podle desetinne carky
+\newcolumntype{d}[1]{D{,}{,}{#1}}
+
+\input{zdrojaky/Codestyle/powershell}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% ZAČATEK DOKUMENTU %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Zacatek dokumentu
+\begin{document}
+
+\MakeTitlePages
+
+\input{subtex/Introduction.tex}
+\input{subtex/MalwareAnalysis.tex}
+\input{subtex/SpustitelneSoubory.tex}
+\input{subtex/Nastroje.tex}
+\input{subtex/Obrana.tex}
+\input{subtex/StateOfArt.tex}
+\input{subtex/Experiment.tex}
+\input{subtex/Conclusion.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% KONEC DOKUMENTU %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%w%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+\printbibliography[title={Literatura}, heading=bibintoc]
+
+\appendix
+\section{Příloha v IS EDISON}
+
+Součásti vypracování této diplomové práce je příloha, jež obsahuje vypracované řešení popsané v kapitole \ref{ExperimentalPart}. Tento projekt byl implementován pomocí Visual Studio 2019.
+
+Řešení je rozděleno do několika projektů:
+
+\begin{itemize}
+    \item \emph{StaticAnalysisProject.Lib} - knihovna;
+    \item \emph{StaticAnalysisProject.Console} - konzolová aplikace;
+    \item \emph{StaticAnalysisProject.Web} - webová aplikace;
+    \item \emph{StaticAnalysisProject.BuildTraningSet} - program pro vytvoření datového setu;
+    \item \emph{StaticAnalysisProject.UpdateTrainingSet} - program pro aktualizaci datového setu;
+    \item \emph{StaticAnalysisProject.MalwareStats} - program, který byl vytvořen při vytváření statistik;
+    
+    \item \emph{MalwareSample.BotnetListener} - klient pro síť botnet;
+    \item \emph{MalwareSample.Keylogger} - keylogger;
+    \item \emph{MalwareSample.RemoteData} - jednotlivé skripty pro vzdálené ovládání vytvořeného malwaru;
+    
+    \item \emph{DP.Tests} - testovací program.
+    
+\end{itemize}
+
+
+\section{Jednotlivé hashe}
+
+Jednotlivé kontrolní součty, které byly zkráceny v kapitole \ref{my_malware_tests}.
+
+\subsection{Malware}
+cbfc9d3bbb07b9594226898510bc36121ac6c7b3ba97a7007bba88ab724ee86f
+
+Nedetekováno
+
+\noindent
+875708802b4c0c29c188335d6cf3c11567184cb03a6649bbcabf762fd0eab423
+
+Nedetekováno
+
+\noindent
+000ad60fb69e0b29422ff2f87b6baaa94d9554f7749c52e22535ee7f61fafe80
+
+Win32:PUP-gen [PUP]
+
+\noindent
+037bfec3b29e3eaa9fae89efce8bca7aaf17c5c2ce1237400d03b6b911224d85
+
+Win32:AdwareSig [Adw]
+
+\noindent
+0872a6c5f7f9454adcbc632dd4557ccc953ebe34e58233cb9a50b9729ceaa0d6
+
+Win32:VBCrypt-AKV [PUP]
+
+\noindent
+190ea43bb2ea29a7d68ee4c40ad4997a4c676e12d9a1399108a597449520dc86
+
+Win32:Downloader-GYZ [Trj]
+
+\noindent
+1c757b4194a5d4e69752eae25d1e1bff2420ba781e0ee3a528315b1e254b4999
+
+Win32:Adware-CWL [PUP]
+
+\noindent
+21b0957a16999e82f4de677d42c9a8726f4f18fa0a8d8d0513dc766a0a5d5149
+
+Win32:Adware-gen [Adw]
+
+\noindent
+2891ae420367fbdecbd7d3ddfc153f0e00ee4acd9676b6b63920ed7ec4f98358
+
+Win32:Adware-gen [Adw]
+
+\noindent
+2e58e15136c7f34fd8a9664e7cf1baf82fb3b873d60dba2065d0e05e16449693
+
+Win32:AdwareSig [Adw]
+
+\noindent
+436b7f21b04faaaeb165aa260eca676db5e9941f0dde88c10fd71d6d121cfdc8
+
+Win32:Vundo-GZ [Trj]
+
+\noindent
+56bb2f51bb18c0e830e757cc615b9d53bbd54657f8b184a70786db1d547ee047
+
+Win32:AdwareSig [Adw]
+
+\noindent
+78c38d998fcbbae770f16294b2b9508a748a253c8a10087f72ccb1a632bb078b
+
+Win32:Dropper-OYB [PUP]
+
+\noindent
+97f1adcebecb103618abcd3959137b588a233433344131fd96dccb7b862eb671
+
+Win32:AdwareSig [Adw]
+
+\noindent
+a2cb313a78898f45d21465fa2a4b5ae17dfeb7510bffaf10e7b6866074a6ed0d
+
+Win32:RmnDrp
+
+\noindent
+abaa67c6622ebf51bc95437bf1260881639c6a92bbdf2933c4a757e4476ecd0b
+
+Win32:AdwareSig [Adw]
+
+\noindent
+b154f80ea1db013c4642a1fb15819470e76ea6ffd1e033c105d2df9ed63ed8ea
+
+Win32:AdwareSig [Adw]
+
+\noindent
+bf5b8849ca74ede846597efd54b8be4e17d88c2b22bf4ab8115805b657ab0ae1
+
+Win32:Mirc-AA [PUP]
+
+\noindent
+c494dab0118d3afbf4b8fda81d3b23cd612c03cc4afe693696fe62f96d6e2c19
+
+Win32:Malware-gen
+
+\noindent
+db1ca5abda08c0c7012d4acac0cf9d3ba65af9ab93d93ec88311f76eac1a583b
+
+Win32:Malware-gen
+
+\subsection{Software}
+85601e92142ef3034b259d823926555252cd620bfc0b474736d3267a4c886f8e
+
+Ozone Neon M50 Driver.exe
+
+\noindent
+9299fb2782866eec592a2b096ec7fbdaf323b588d645fd4831b4547380b80d0b
+
+Curse.exe
+
+\noindent
+baf1879a3dd327ca06937febbdd611f2041acb61285242b939fa782f4508a364
+
+Lanayo.VagrantManager.exe
+
+\noindent
+775a767251f270c25205e81d0c7a09bdbe74861ae3db14168261ff2e26c73df9
+
+Amazon.Fuel.AppCore.dll
+
+\noindent
+dcdb0650b7bcb619e8309cd9871af05ac83722311f80e84dc96701b509ee2d32
+
+CAMV2.Data.dll
+
+\noindent
+459dd1efe7457b94263b4c45658b87126982e3f9106d34fd86890e2f1d158c72
+
+EasyAntiCheat.exe
+
+\noindent
+47772a978a07fdc1681a6fe0174f00c80b95661d8cfcb6679105d27cb8e955e1
+
+NeroPatentActivation.exe
+
+\noindent
+f2d6f5b9d167659aebd7b7ca43906de0d238a19632e9d8ff1350c9688e2050ee
+
+lua52.dll
+
+\noindent
+c1c6c4c8de6b0fac66382fe4d619f23149fa7f722aba71f305c9d553a176bc9c
+
+mergecap.exe
+
+\noindent
+280c0f7b28874b9c9bb68780f62376bc137d64f9b1583c4d1354ee7cfb1df0a1
+
+obs32.exe
+
+\noindent
+10effd4181e639696ba94731b9abf8823f0658f8b50a1a9490ab05fd4f229cdc
+
+OpenRL.dll
+
+\noindent
+3ad5d5bcfe61eefc94adbc3ea0beec3d4131be4c77d749df61e5ed955a01d9b4
+
+overlay.dll
+
+\noindent
+b3e7e2ee3b5232d76f5e0b949f363adff83333c6dd73b6206aaa8f8595c1b00f
+
+phpstorm.exe
+
+\noindent
+483863541fda0db28df3befe559e484d64376de0e702c0dc90f886eeb8f3905b
+
+python.exe
+
+\noindent
+f4aae235166395e0d3bc1de45e76b9a6ce0387d98c7453c446f6b42b3ff9057b
+
+Qt5Core.dll
+
+\noindent
+a64fe801def20f64fa97c6bea6dd9893c35dfa4d384be6867abec9bd41ff7c1d
+
+socialclub.dll
+
+\noindent
+41229db9d328818a51623b61e41b79be3058641d4e2fdf8f97063e481589f788
+
+SocialClubHelper.exe
+
+\noindent
+a1a1372544627ead59633cfd6aa25e9c007b1a9edfaa3e99c3543f961440c323
+
+trezord.exe
+
+\noindent
+c67b7acce03210d67a9eac3125acd59815917e6be8e042a353934c0f76d784ae
+
+java.exe
+
+\noindent
+709bc7fd42cadae44712140027e59bae062e9be24fa57849d7321922bca65ff6
+
+vulkaninfo.exe
+
+\end{document}

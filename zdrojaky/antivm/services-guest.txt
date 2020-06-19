@@ -1,0 +1,6 @@
+DisplayName
+-----------
+VirtualBox Guest Additions Service
+
+ProcessName
+-----------

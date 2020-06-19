@@ -1,0 +1,1 @@
+string path = "https://cnc.zelvar.cz/server.xml";

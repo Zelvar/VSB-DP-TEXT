@@ -1,0 +1,82 @@
+\subsection{Packery}
+\label{packers}
+
+Při použití packingu dochází k zabalení původního programu nebo jeho části a to pomocí packeru nad binárními daty. Může docházet k zašifrování nebo kompresi. Packer nahradí původní program nebo jeho část tzv. unpackerem. Při spuštění kódu se nejprve provede tzv. unpacking do paměti a následně se kód spustí \cite{diff_packers}. Tvůrci malwaru využívají tuto techniku packování velmi často, za~účelem ztížení a časové prodloužení analýzy kódu reverzním inženýrem \cite{HoonKang2011}.
+
+% Kompresory, bundlery, kodéry, protektory
+
+%% EXAMPLE IMAGE
+
+Při svém procesu mohou zároveň provádět kompresi, obfuskaci, šifrování nebo přidat jinou funkcionalitu pro ztížení reverzní analýzy \cite{packers_2010}. Druhy packerů si popíšeme v následujícím textu, součástí bude porovnání několika packerů viz tabulka č. \ref{table:packeryTabulka}. Některé packery, jež jsou porovnávaný jsou veřejně dostupné a mají také otevřený zdrojový kód (UPX, Obfuscator, ConfuserEX). Otevřený kód může nahrávat reverzním analytikům, protože snáze zjistí jak packer funguje a mohou tak tedy kód případně snáze unpackovat. Existují však také komerční packery, které otevřeným kódem nedisponují a je těžší je analyzovat.
+
+%https://gironsec.com/code/packers.pdf
+%https://www.boxedapp.com/exe_bundle.html
+%https://www.security-portal.cz/clanky/seznamte-se-%E2%80%93-morfismy-oligomorfismus-polymorfismus-metamorfismus
+
+%%
+\paragraph*{Rozšiřující}
+
+\subparagraph*{Kompresory} Tento druh packeru slouží primárně k snížení velikosti spustitelného souboru. Před spuštěním se provede dekomprese do paměti a soubor se spustí \cite{diff_packers}.
+
+\subparagraph*{Protektor} Cílem protektoru je ztížit analýzu kódu různými metodami jako anti-debug, anti-vm apod. a ochránit tak kód vůči reverzní analýze \cite{packers-malwarbytes}.
+
+\subparagraph*{Kryptor}  Dalším druhem packeru je kryptor, jež provádí šifrování originálního souboru. Před spuštěním je nejprve dešifrován a následně spuštěn \cite{packers-malwarbytes}.
+
+\subparagraph*{Bundler} Tato metoda packování umožňuje zabalit do jednoho souboru všechny potřebné soubory. Program se tedy na první pohled tváří, že neobsahuje žádné externí knihovny apod. \cite{diff_packers}. 
+
+%%
+\paragraph*{Transformující} %https://www.security-portal.cz/clanky/seznamte-se-%E2%80%93-morfismy-oligomorfismus-polymorfismus-metamorfismus
+
+\subparagraph*{Virtualizátor} Virtualizátory převádí původní spustitelný kód do jazyku virtuálního stroje, který následně provádí vestavěný virtuální stroj \cite{diff_packers}. 
+
+\subparagraph*{Mutátor} Převádí instrukce na alternativní (v rámci stejné platformy). Využívá se oligomorfismu \cite{diff_packers}.
+
+
+%https://blog.malwarebytes.com/cybercrime/malware/2017/03/explained-packer-crypter-and-protector/
+%https://www.mcafee.com/blogs/enterprise/malware-packers-use-tricks-avoid-analysis-detection/
+%https://reverseengineering.stackexchange.com/questions/1779/what-are-the-different-types-of-packers
+
+%https://archive.codeplex.com/?p=netdeob0
+%https://en.wikipedia.org/wiki/Executable_compression
+
+\noindent
+\begin{table}[!ht]
+    \centering
+    \caption{Výběr některých packerů}
+    \label{table:packeryTabulka}
+    
+    \begin{tabular}{|l|l|c|c|c|c|c|}
+    \hline
+        Název & Licence & x86-64 & Komprese & Obfuskace & Šifrování & Jiná \\
+		\hline
+		\hline
+        UPX & GPL & \checkmark & \checkmark &  & & \\  \hline
+        
+        ASPack & Proprietární & x86 & \checkmark &  & & \\  \hline
+        ASProtect & Proprietární & \checkmark & \checkmark &  & \checkmark & \checkmark \\  \hline
+        Enigma Virtual Box & Proprietární & \checkmark & \checkmark & \checkmark & & \checkmark \\  \hline
+        
+        \hline
+        Obfuscar & MIT & .NET & \checkmark & \checkmark & & \\ \hline
+        ConfuserEx & MIT & .NET & \checkmark & \checkmark & \checkmark & \checkmark \\ \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Unpacking}
+\label{unpackers}
+
+Unpacking je proces, při kterém dochází k obnově původních zdrojových dat (kódu) z programu, jež byl zabalen jedním nebo vícero packery \cite{HoonKang2011}. Existují tří různé způsoby jak získat původní kód \cite{4639028}. A to buď pomocí ručního, statického nebo dynamický unpacking \cite{generic_unpacker}.
+
+\paragraph*{Ruční unpacking}
+
+Při ručním unpackingu reverzní analytik zkoumá jednotlivé vrstvy algoritmu, jímž byl kód šifrován, komprimován apod. A ručně se snaží o obnovu původních dat. Tato~technika je však velmi časově náročná, vyžaduje hlubší znalosti nižších vrstev OS a také znalost assembleru \cite{4639028}. 
+
+\paragraph*{Statický unpacking}
+
+Metoda statického unpackingu je vlastně způsob jak zautomatizovat unpacking známých packerů jako například kompresor UPX. Jde o rutinní operace, které provádí dekompresi, dešifrování apod. A umožňují tak snadno získat původní kód. Autoři malwaru však mohou mírně upravit packer nebo použít svůj vlastní a původní unpacker již nebude funkční \cite{4639028}. 
+
+Tuto metodu také používají antivirové společnosti ve svém softwaru, aby urychlili detekci nových neznámých vzorků malwaru \cite{4639028}.
+
+\paragraph*{Dynamický unpacking}
+
+Zatímco statický unpacking se snaží nahradit proces packeru, jež~se stará o rozbalení a spuštění původní aplikace. Dynamický unpacker nechá rozbalení na původním programu. Unpacker nejdříve spustí zabalený program, nechá jej až se rozbalí do~paměti. A pak se snaží získat rozbalený kód z paměti a uložit do souboru \cite{generic_unpacker}.

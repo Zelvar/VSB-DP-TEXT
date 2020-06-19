@@ -1,0 +1,33 @@
+\section{Závěr}
+%Všechno bylo skvělý a fungovalo to.
+% co práce shrnuje atd co obsahuje
+%%% co bylo cílem a jak se to povedlo
+%%% potvrzení článku ze state of art o ML charakteristik 
+%%% zlepšení datasetu (větší atd.) + nastavení parametru / testování dalších algoritmu / použití převodu malwaru na obrázek (viz stateofart)
+
+Tato diplomová práce předkládá základní poznatky o analýze malwaru a to jak statické, tak dynamické analýze. Zabývá se také základními parametry struktury spustitelného souboru. Dále shrnuje základní mechanismy obrany malwaru, které se snaží maskovat záměry a funkce škodlivého kódu. To~je zásadní pro další vývoj analýzy malwaru, neboť je potřeba toto maskování detekovat potažmo i přes jeho přítomnost spolehlivě odhalovat malware. Dále se pak práce podrobněji zabývá analýzou statickou. Ke statické analýze pak nabízí přehled nejnovějších trendů v jejím využití, nezbytnou součástí je také výčet výhod a nedostatků tohoto konkrétního využití.
+
+Na základě předloženého přehledu aktuálních znalostí na poli statické analýzy nabízí i vlastní řešení pomocí programu provádějícího statickou analýzu. Ten je dále testován, a to jak s vzorky legitimního softwaru, tak i se vzorky malwaru, přičemž důraz byl kladen na vzorky spustitelné v operačním systému s podporou formátu PE. Při analýze vlastním programem byly sledovány následující vlastnosti, jako jsou parametry spustitelného souboru, entropie, výskyt konkrétních skupin řetězců a nakonec výskyt konkrétních vzorů detekovaných pomocí nástroje Yara.
+
+Výsledkem tohoto testování je soubor jednotlivých výstupů. Tyto výstupy jsou poté dále zkoumány.
+
+Jako první byl vyhodnocován výstup parametrů spustitelného souboru. Legitimní software je běžně vyvíjen, jak pro 32 bitový, tak i 64 bitový operační systém a to zhruba v poměru 1:1, zatímco v případě malwaru převažuje výskyt 32 bitové varianty a to dokonce s 96~\%. Dalším parametrem byl podpis souboru digitálním certifikátem. Zde se ukazuje, že 33~\% běžných aplikací bylo podepsáno, naopak u malwaru to bylo 11~\%.  Byl zkoumán také typ PE souboru (dll knihovna nebo \emph{exe} spustitelný soubor). Posledním pro analýzu zajímavým parametrem byl počet sekcí spustitelného souboru, kde u malwaru bylo nalezeno průměrně menší množství sekcí než u legitimního softwaru.
+
+Jedním z dalších výstupů pak byla entropie. Získané hodnoty entropie pro legitimní software měly normální rozložení a medián entropie běžných aplikací byl 6.41. Hodnoty entropie malwaru pak nebyly rozloženy normálně a jejich medián byl 7.08. Pomocí Mann-Whitneyova U-testu pak byla otestována shodnost hodnot entropie pro legitimní software a malware. Rozdíl mezi těmito dvěma skupinami byl statisticky významný.
+
+Následně byly vyhodnocovány řetězce. Konkrétně se jednalo o email, IP adresu (jak IPv4, tak IPv6) a URL adresu. Zajímavým zjištěním bylo, že v případě malwaru byl výskyt emailové a url adresy nižší. V případě malwaru mohou tyto informace, které slouží často ke komunikaci s útočníkem, zůstat skryté díky různým obfuskačním metodám.
+
+Podobně jako u řetězců nebyl výstup hodnotící výskyt knihoven průkazný. Na datech totiž můžeme jasně vidět, že se použité knihovny u běžného softwaru i malwaru velmi podobají. Proto~je potřeba zkombinovat tento výstup s výstupem obsahující seznam použitých metod, které jsou z těchto knihoven volány.
+
+V případě výstupu funkcí byl pozorován znatelnější rozdíl mezi používanými metodami škodlivým kódem a běžnými aplikacemi. Malware častěji využíval metody, které slouží k dynamické práci s knihovnami a jsou často zneužívaný právě malwarem k injekci kódu.
+
+Dále byl vyhodnocen výskyt použitých pravidel \emph{Yara}. Nejčastěji bylo detekováno pravidlo pro detekci 32 bitového PE souboru, použití grafického rozhraní a práce se systémovými soubory. U malwaru pak bylo v 53~\% detekováno packování a ve 44~\% inicializace pro obsluhu strukturovaných výjimek. Dalším zajímavým pravidlem, které bylo detekováno u malwaru v 22~\% byla snaha o získání vyššího oprávnění.
+
+Tyto parametry byly následně také využity pro automatickou klasifikaci výstupu statické analýzy. Za tímto účelem byla využita technologie \emph{ML.NET}. 
+
+Výsledky klasifikace malwaru nasvědčují, že úspěšnost použité detekce malwaru je velmi vysoká. U neškodlivého kódu pak byl v 15 \% testovaných  případů vyhodnocen testovaný legitimní software jako malware (false-positive). A proto by bylo vhodné datovou kolekci dále rozšířit o~vzorky nové a to jak malwaru tak běžného softwaru. Zároveň je však neustále potřeba hledat nové možnosti a parametry (jako naříklad využití zmíněné obrazové analýzy malwaru), protože~i~obrana škodlivého kódu vůči analýze se nezastavuje.
+
+%Na základě těchto parametrů bylo následně využito technologie \emph{ML.NET}. Proto aby byl vytvořen automatický 
+%Tato diplomová práce shrnuje aktuální možnosti v oboru statické analýzy malwaru. A zároveň předkládá vlastní řešení analýzy malwaru pomocí strojového učení s využitím technologie \emph{ML.NET}. 
+%práce shrnuje akuální poznatky...., zároveň předkládá návrh vlastního postupu statické analýzy, který také testuje. Výsledky pak prokazují statistickou významnost mezi hodnotami entropií pro běžně používaný legitimní software a hodnotami entropií pro malware. Pokud by byl použit rozsáhlejší dataset.... + co by bylo možné zlepšit do budoucna
+%možná ten článek o obrazové analýze?

@@ -1,0 +1,55 @@
+\paragraph*{Obfuskace běhu programu}
+Tato transformace je využívána za účelem maskování posloupnosti kódu. Provádí se například záměnou pořadí prováděných instrukcí pomocí podmíněných skoků, vloženým nahodilým mrtvým kódem atd. \cite{13355040520180901}.
+%https://www.paladion.net/blogs/code-obfuscation-part-3-hiding-control-flows
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subparagraph*{Změna pořadí prováděného kódu}
+Tento typ obfuskace spočívá v tom, že jsou provedeny skoky mezi jednotlivými částmi programu, které jsou náhodně rozmístěny. Přestože probíhají skoky, chování počítačového programu se nezmění. Tato metoda je v podstatě jednoduchá nicméně v delším kódu komplikuje analýzu pořadí prováděných operací \cite{13355040520180901}. 
+
+Princip prezentuje následující výstup kódu č. \ref{src:ChangedOrder1} a \ref{src:ChangedOrder2}. Kód byl rozdělen do několika části (\emph{.start, .end a .continue}) následně byl náhodně rozmísten. Podmíněné skoky (\emph{JMP}) pak zajistí aby došlo k vykonání kódu ve správném pořadí.
+
+%%%%%%%%%%%%%%% Výstup %%%%%%%%%%%%%
+\noindent
+\begin{minipage}[t]{.475\textwidth}
+    \lstinputlisting[basicstyle=\footnotesize,label=src:ChangedOrder1,caption={Původní kód funkce bez obfuskace}]{zdrojaky/obfuskace/zmena-poradi-kodu1.asm}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{.475\textwidth}
+    \lstinputlisting[basicstyle=\footnotesize,label=src:ChangedOrder2,caption={Obfuskovaný kód funkce}]{zdrojaky/obfuskace/zmena-poradi-kodu2.asm}
+\end{minipage}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subparagraph*{Vložení nahodilého kódu}
+Tato technika obfuskace je založena na vložení mrtvého nebo nepodstatného kódu do programu. Využívají ji především útočnici, protože pomocí této metody lze vytvořit novou verzi programu, která se chová stejně. Účel spočívá především ve zmatení detekce antiviry, protože vložený kód změní signaturu programu (známé signatury jsou využívány pro rychlou detekci malwaru) \cite{13355040520180901}. 
+
+Ukázka následujících výpisu č. \ref{src:RandomCodeInserted1} a \ref{src:RandomCodeInserted2} prezentuje rozdíl hlavně v délce kódu. Do kódu bylo vloženo několik skoků pomocí \emph{JMP} a instrukcí \emph{NOP}, která nevykonává žádnou operaci.
+
+%%%%%%%%%%%%%%% Výstup %%%%%%%%%%%%%
+\noindent
+\begin{minipage}[t]{.475\textwidth}
+    \lstinputlisting[basicstyle=\footnotesize,label=src:RandomCodeInserted1,caption={Původní kód bez obfuskace vloženého kódu}]{zdrojaky/obfuskace/vlozeni-nahodileho-kodu1.asm}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{.475\textwidth}
+    \lstinputlisting[basicstyle=\footnotesize,label=src:RandomCodeInserted2,caption={Kód funkce po obfuskaci}]{zdrojaky/obfuskace/vlozeni-nahodileho-kodu2.asm}
+\end{minipage}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subparagraph*{Nahrazení ekvivalentem}
+Díky nahrazení části kódu ekvivalentem lze provádět stejnou funkcionalitu programu různými způsoby. Tím je možné dosáhnout změny signatury, což způsobí vyšší náročnost detekce malwaru, takto vznikají nové verze u nichž je potřeba uchovat signaturu každé nové jedinečné verze \cite{13355040520180901}. 
+
+Následující výpisy kódu č. \ref{src:ReplacedByEkvivalent1} a \ref{src:ReplacedByEkvivalent2} prezentují tuto metodu. Kód se liší ve dvou podstatných instrukcích, jež vykonávají ekvivalentní funkci a to instrukce \emph{test} nahrazena ekvivalentem \emph{cmp} a instrukce \emph{inc} nahrazena \emph{add}.
+
+%%%%%%%%%%%%%%% Výstup %%%%%%%%%%%%%
+\noindent
+\begin{minipage}[t]{.475\textwidth}
+    \lstinputlisting[basicstyle=\footnotesize,label=src:ReplacedByEkvivalent1,caption={Kód před nahrazením}]{zdrojaky/obfuskace/nahrazeni-ekvivalentem1.asm}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{.475\textwidth}
+    \lstinputlisting[basicstyle=\footnotesize,label=src:ReplacedByEkvivalent2,caption={Kód po nahrazení}]{zdrojaky/obfuskace/nahrazeni-ekvivalentem2.asm}
+\end{minipage}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\subparagraph*{Packing kódu}

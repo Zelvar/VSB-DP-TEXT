@@ -1,0 +1,31 @@
+\subsection{Anti-debug}
+\label{anti_debug}
+
+Tento způsob ochrany brání ladění neboli debugovaní programu. Implementují ho často jak~legitimní aplikace, které potřebuji utajit své know-how, tak i tvůrci malwaru. Existuje mnoho způsobů jak přítomnost debuggeru detekovat a případně ho blokovat. Mezi ty nejpopulárnější patří následující \cite{sikorski2012practical}.
+
+\paragraph*{Windows API}
+
+Microsoft Windows obsahuje ve svém API několik zpusobů jak debugger detekovat. Některé funkce byly navrženy přímo pro detekci debuggeru, některé zase pro jiné účely, ale lze je pro detekci použít.
+
+Nejjednodušším způsobem je použít metodu \emph{IsDebuggerPresent}. Tato metoda sleduje strukturu PEB, která obsahuje informace o aktuálním procesu, včetně pole \emph{IsDebugged}. Pokud je~toto pole nastaveno na nulu, debugger není přítomen. V opačném případě je program spuštěn v~debug režimu.
+
+Obdobným způsobem můžeme použít metodu \emph{CheckRemoteDebuggerPresent}, která funguje na podobném principu. Rozdíl spočívá v tom, že tato funkce byla navržena ke sledování debuggu cizího (vzdáleného) procesu. Lze ji však nastavit tak, aby plnila i tento úkol.
+
+Další možností je funkce \emph{NtQueryInformationProcess}. Metoda opět slouží k získání informací o požadovaném procesu. Prvním parametrem funkce je ukazatel na proces. Dalším parametrem je pak možné nastavit typ získané informace. 
+
+Alternativním řešením bez sledování struktury PEB může být \emph{OutputDebugString}. Funkce slouží k odeslání řetězce na výstup debuggeru. Pokud však debugger nebude přítomen a chybový kód bude nastaven pomocí funkce \emph{SetLastError} bude po zavolání \emph{OutputDebugString} na výstupu chybový kód funkce \emph{OutputDebugString}. V případě, že by debugger přítomen byl, na výstupu bude chybový kód, který byl nastaven přes funkci \emph{SetLastError}.
+
+\paragraph*{Detekce chování debuggeru}
+
+Další variantou této ochrany je detekce základní funkce debuggeru a to breakpointu \cite{deepinstrinct_antidebug}. Breakpoint slouží analytikovi k zastavení kódu a funguje na principu vložení instrukce \emph{INT 3} do kódu. Instrukce \emph{INT 3} slouží k vyvolání breakpointu neboli přerušení. Malware však může skenovat sám sebe a hledat tuto instrukci v kódu. Případně vytvářet za~běhu kontrolní součet nebo hash aby zjistil, zda nebylo zasaženo do kódu.
+
+
+\paragraph*{TLS callback}
+%https://www.deepinstinct.com/2017/12/27/common-anti-debugging-techniques-in-the-malware-landscape/
+%https://docs.microsoft.com/cs-cz/cpp/parallel/thread-local-storage-tls?view=vs-2019
+TLS je místní paměťový prostor v rámci jednoho vlákna, kde může dané vlákno ukládat svá data \cite{msdocs_tls}. Tato vlastnost může být zneužita tak, že ještě před vstupním bodem programu, kdy je inicializováno vlákno aplikace, se zavolá potřebná funkce \cite{deepinstrinct_antidebug}.
+
+
+\paragraph*{Zneužití zranitelnosti debuggeru}
+%https://exchange.xforce.ibmcloud.com/vulnerabilities/16711
+Stejně jako každý software i debuggery mohou obsahovat zranitelnosti. Autoři malwaru si to samozřejmě uvědomují a této skutečnosti zneužívají. Příkladem může být chyba známého a používaného debuggeru OllyDbg ve verzi 1.1 \cite{CVE-2004-0733}, která umožňovala aplikaci shodit pomocí formátovacího řetězce, zaslaného přes Windows API metodou \emph{OutputDebugString}.

@@ -1,0 +1,138 @@
+\subsection{Anti-VM}
+%https://www.cyberbit.com/blog/endpoint-security/anti-vm-and-anti-sandbox-explained/
+Autoři malwaru jsou si plně vědomi využití izolovaného virtuálního prostředí při dynamické analýze. Proto do svých programů implementují techniky, jež detekují takové virtuální prostředí. V případě, že malware toto prostředí detekuje, může například deaktivovat svou funkčnost. V~případě statické analýzy, lze některé z těchto postupů odhalit.
+
+Tvůrci škodlivého kódu, jež takovouto obranu implementují do svého programu, využívají znalostí o izolovaném prostředí. Tyto postupy jsou popsány níže \cite{cyberbit_2016}. (Při testování těchto funkcionalit byl použit VMware verze 15.5.1 a VirtualBox ve verzi 6.0.10)
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subparagraph*{Instrukce CPU} 
+%https://c9x.me/x86/html/file_module_x86_id_45.html
+%https://cs.wikipedia.org/wiki/CPUID
+
+Prvním způsobem jak detekovat virtuální prostředí je použití instrukce CPUID, která slouží k zjištění informaci o daném procesoru. 
+
+
+Následující ukázka č. \ref{src:InstructionVM1} prezentuje instrukci CPUID pro zjištění, zda se program nachází ve virtuálním prostředí. Nejprve je nastaven registr EAX = 1 a následně je vykonána instrukce CPUID. Ta při nastaveném EAX na 1 vrátí do několika registrů (EAX-EDX) informace o procesoru. \cite{instruction_set_x86_cpuid} V tomto případě bude je předmětem zájmu registr ECX, který na 31. bitu obsahuje informaci, zda se jedná o hostitele nebo prostředí VM. Pokud bude tento bit nastaven na 0 jedná se o fyzický stroj, v opačném případě půjde o hosta \cite{cyberbit_2016}.
+
+\noindent
+\begin{minipage}[t]{1\textwidth}
+    \lstinputlisting[basicstyle=\footnotesize,label=src:InstructionVM1,caption={Instrukce CPUID - Převzato z \cite{cyberbit_2016}}]{zdrojaky/antivm/cpuid.asm}
+\end{minipage}
+
+Obdobně lze využít instrukci CPUID viz ukázka č. \ref{src:InstructionVM1} k získání názvu hypervizoru virtualizačního softwaru. Postup je obdobný je potřeba nastavit registr EAX na hodnotu 40000000 a následně provést instrukci CPUID. Po provedení instrukce s tímto parametrem je následně nastavena hodnota registrů EAX, ECX a EDX.
+Získané názvy jsou uvedeny v tabulce č. \ref{table:hypervisor_cpuid}.
+
+\begin{table}[!ht]
+    \centering
+    \caption{Názvy získaných hypervizorů pomocí funkce CPUID}
+    \label{table:hypervisor_cpuid}
+    
+    \begin{tabular}{|l|l|}
+    \hline
+        Hypervizor & Obsah registrů \\
+		\hline
+		\hline
+        VirtualBox & VBoxVbox \\ \hline
+        VMware     & VMwareVMware \\ \hline
+        Hyper-V & Microsoft HV \\ \hline
+    \end{tabular}
+\end{table}
+
+
+V případě VMware, může být použita také detekce díky tzv. VMWare Magic Number \cite{sikorski2012practical} (viz~ukázka č. \ref{src:AntiVMWare}) ((\emph{0x56 0x4D 0x58 0x68}) = řetězec VMXh dle hodnot v ASCII tabulce). V~tomto případě se využívá specifický I/O port. Nejdříve jsou nastaveny registry EAX na hodnotu VMXh a číslo portu v registru EDX (\emph{0x56 0x58} = VX řetězec dle ASCII hodnot). Následně~se~zavolá instrukce IN pro čtení z tohoto portu. Pokud po této instrukci dojde k přepsání registru EBX tzv. kouzelným číslem, dojde k úspěšnému připojení k tomuto portu a proniknutí dovnitř VMWare.
+
+\noindent
+\begin{minipage}[t]{1\textwidth}
+    \lstinputlisting[basicstyle=\footnotesize,label=src:AntiVMWare,caption={Anti VMware - Převzato z \cite{sikorski2012practical}}]{zdrojaky/antivm/antivmware.asm}
+\end{minipage}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subparagraph*{MAC adresy}
+
+Také MAC adresy mohou sloužit k identifikaci virtualizace  \cite{cyberbit_2016}. Vodítkem pro autory malwaru může být seznam registrovaných bloků spravovaný organizací IEEE \cite{ieee_macs}. Tento seznam obsahuje adresy a výrobce, který si je registroval. Viz tabulka č. \ref{table:macs_vm}.
+
+\begin{table}[!ht]
+    \centering
+    \caption{Některé MAC adresy, které se používají ve virtuálním prostředí - převzato z \cite{cyberbit_2016}}
+    \label{table:macs_vm}
+    
+    \begin{tabular}{|l|l|}
+    \hline
+        Výrobce & Blok \\
+		\hline
+		\hline
+        VMware     & 00:05:69 \\ \hline
+        VMware     & 00:0C:29 \\ \hline
+        VirtualBox & 08:00:27 \\ \hline
+        VirtualBox & 00:21:F6 \\ \hline
+        Privátní rozsah & 00:00:6C \\ \hline
+        Privátní rozsah & 78:F9:44 \\ \hline
+    \end{tabular}
+\end{table}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subparagraph*{Ovladače hardware}
+
+Protože většina součástí hardwaru je virtualizována, jsou potřeba specifické ovladače. Tyto ovladače je možné nalézt například pomocí jednoduchého Powershell příkazu, který je možné vidět na následujícím výpisu č. \ref{powershell_vb_drivers}.
+
+\noindent
+\begin{minipage}[t]{1\textwidth}
+    %\lstinputlisting[basicstyle=\footnotesize,label=src:Assembler,caption={Kód funkce po obfuskaci}]{zdrojaky/obfuskace/vlozeni-nahodileho-kodu2.asm}
+    \begin{lstlisting}[language=Powershell,label=powershell_vb_drivers,basicstyle=\footnotesize,caption={Powershell kód pro získání instalovaných ovladačů VirtualBoxu}]
+gwmi Win32_SystemDriver | Where-Object {$_.DisplayName -like "*VirtualBox*"} | select DisplayName
+    \end{lstlisting}
+\end{minipage}
+
+Tento skript umožňuje získat seznam názvů nainstalovaných ovladačů obsahujících klíčové slovo VirtualBox. Na následujícím výstupu č. \ref{src:DriversVM1} a \ref{src:DriversVM2} konzole můžeme vidět, že názvy ovladačů hosta jsou dostatečně jedinečné a tedy rozpoznatelné od hostitelských ovladačů.
+
+\noindent
+\begin{minipage}[t]{.475\textwidth}
+    \lstinputlisting[basicstyle=\footnotesize,label=src:DriversVM1,caption={Seznam hostitelských ovladačů VirtualBoxu}]{zdrojaky/antivm/drivers-host.txt}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{.475\textwidth}
+    \lstinputlisting[basicstyle=\footnotesize,label=src:DriversVM2,caption={Seznam ovladačů VBox hosta}]{zdrojaky/antivm/drivers-guest.txt}
+\end{minipage}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subparagraph*{Běžící procesy a služby}
+
+Obdobně jako ovladače je možné na virtualizovaném stroji  nalézt také specifické procesy případně služby, které indikují, že se jedná o virtuální prostředí. Pro získání seznamu běžících procesů a služeb lze použít následující dva příkazy viz výpis č. \ref{src:PwshServicesAndProcesses}.
+
+\noindent
+\begin{minipage}[t]{1\textwidth}
+    %\lstinputlisting[basicstyle=\footnotesize,label=src:Assembler,caption={Kód funkce po obfuskaci}]{zdrojaky/obfuskace/vlozeni-nahodileho-kodu2.asm}
+    \begin{lstlisting}[language=Powershell,label=src:PwshServicesAndProcesses,basicstyle=\footnotesize,caption={Powershell kód pro získání běžících procesů a služeb}]
+Get-Process | Where-Object {$_.ProcessName -like '*vm*'} | select ProcessName
+Get-Service | Where-Object {$_.Name -like '*VBox*'}  | select DisplayName
+    \end{lstlisting}
+\end{minipage}
+
+Výstupem je opět možné ověřit, že běžící procesy hostitele a hosta se liší. První tabulka na výstupu č. \ref{src:ServicesVM1} obsahuje seznam služeb, druhá (viz výstup č. \ref{src:ServicesVM2}) pak seznam běžících procesů.
+
+\noindent
+\begin{minipage}[t]{.475\textwidth}
+    \lstinputlisting[basicstyle=\footnotesize,label=src:ServicesVM1,caption={Výstup konzole hostitele}]{zdrojaky/antivm/services-host.txt}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{.475\textwidth}
+    \lstinputlisting[basicstyle=\footnotesize,label=src:ServicesVM2,caption={Výstup konzole hosta}]{zdrojaky/antivm/services-guest.txt}
+\end{minipage}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subparagraph*{Registry}
+
+V neposlední řadě mohou být vodítkem pro autory malwaru také registry na OS Windows, kde je možné nalézt záznamy o existenci nástrojů virtuálního prostředí případně další specifické záznamy \cite{cyberbit_2016}.
+
+
+    Některé z těchto záznamů (převzato z \cite{github_antivmdetection}) lze nalézt v následujících cestách:
+    
+\begin{itemize}
+ \setlength\itemsep{.0em}
+  \item VirtualBox - HKLM:/HARDWARE/ACPI/DSDT/VBOX\_\_;
+  \item VirtualBox - HKLM:/HARDWARE/ACPI/FADT/VBOX\_\_;
+  \item VirtualBox - HKLM:/SOFTWARE/Oracle/VirtualBox Guest Additions;
+  \item VMware - HKLM:/Software/VMware.
+\end{itemize}
+    

@@ -1,0 +1,49 @@
+\section{Současný stav poznání}
+\label{stateOfArt}
+
+Tato kapitola se zabývá přehledem vybraných prací, které reprezentují aktuální přístupy ke~statické a dynamické analýze škodlivého kódu a jejich výhodami a nedostatky.
+
+\subsection{Statická a dynamická analýza malware pomocí strojového učení}
+\label{stateofArt1_staticanddynamic_machinelearning}
+
+Autoři \cite{stateOfArt1} zde získávají charakteristiky, a to pomocí jak statické, tak dynamické analýzy. Statická analýza je zahájena extrakcí hlavičky a jednotlivých sekcí PE file pomocí knihovny v pythonu bez spuštění v kontrolovaném prostředí. Jsou analyzovány jednotlivé sekce. Dále je také zahájena analýza dynamická, kde již dochází ke spuštění malwaru v kontrolovaném prostředí (konkrétně je použito Cuckoo sandbox), který zaznamenává chování malwaru a po ukončení analýzy vrátí do původního stavu. Poté jsou pomocí různých metod strojového učení zkoumány použité API calls, IP adresy a DNS fronty atd. Celkem je pomocí kombinace statické a dynamické analýzy dosaženo výsledku v podobě více než 92 různých charakteristik. Podle autorů je problémem to, že malwary snadno identifikují kontrolované prostředí a mohou tomu tedy přizpůsobit i své chování. V porovnání s dynamickou analýzou se jeví statická analýza jako účinnější. Nicméně i tato je limitována, a to převážně velikostí malwaru a možností jeho obfuskace. Kombinace statické i dynamické analýzy je tedy vhodná, do budoucna je však potřeba zajistit odstranění nedostatků jednotlivých postupů.
+
+\subsection{Klasifikace malwaru na základě charakteristik získaných pomocí statické analýzy}
+\label{stateofArt2_characteristics_classification}
+
+Parametry získané statickou analýzou jsou autory \cite{stateOfArt2} pomocí metod strojového učení tříděny do~jednotlivých kategorií. Jako zdroj dat zvolili autoři databázi VirusShare. Pro klasifikaci malwaru byl vybrán systém, který využívá Kaspersky scan. Nejprve byly vzorky prozkoumány pomocí Exeinfo PE a Kapersky scanu, tím bylo získáno rozdělení do jednotlivých skupin. Poté~byly pomocí statické analýzy získány hexadecimální charakteristiky bytekódu, assembleru a také struktury PE filů. Ty byly dále testovány. Nakonec byly vybrány charakteristiky, na kterých byly aplikovány různé algoritmy strojového učení (Scikit-learn knihovny strojového učení zahrnující SVM, rozhodovací strom, náhodný les atd.). 
+
+\subsection{Statická analýza malwaru v systému android: techniky, limity a přetrvávající výzvy}
+\label{stateofArt3_android}
+
+V tomto článku si autoři \cite{stateOfArt3} zvolili za cíl vyhledat nedostatky statické analýzy prezentované v již existující literatuře a tyto poté diskutovat (jsou zmíněny různé druhy obfuskace, šifrování řetězce, vložení nadbytečného kódu, apod., využívání dex či jar souborů, přidávání škodlivého kódu k ověřeným souborům) dále také vysvětlit čtyři fáze detekce malwaru (fáze předcházející zpracování, fáze extrakce charakteristik, fáze výběru charakteristik a fáze detekce), rozebrat charakteristiky, které jsou využívány při statické analýze, a nakonec prezentovat srovnání mezi využitím komerčních antivirů a nástroje vyvinutého pro odhalení obfuskovaného malwaru pomocí statické analýzy. Dochází k závěru, že je stále potřeba zaměřit se na vývoj nových nástrojů, které by pomohly s odhalením malwaru využívajícího pokročilé metody obfuskace.
+
+\subsection{Limity statické analýzy pro detekci malwaru}
+\label{stateofArt4_limits}
+
+Tento článek \cite{stateOfArt4} se zabývá identifikací limitů statické analýzy za účelem detekce škodlivého kódu. Hlavním způsobem zamezení nebo znesnadnění statické analýzy je dle autorů obfuskace. Která je provedena pomocí přepisovacích nástrojů (určených pro Windows či Linux), které nemají dostupné zdrojové kódy ani jinou dokumentaci. Nechybí zde výsledky, které ukazují, že~detektory malware zohledňující sémantiku mohou být snadno obejity a zároveň je předvedeno, že binární změny provedené autory škodlivého kódu jsou robustní.
+
+Obfuskace použita autory škodlivého kódu, má za cíl nahradit některé části původního kódu, takovými, které jsou sémanticky souhlasné a zároveň znesnadňují statickou analýzu, ale nemění programu \cite{stateOfArt4}.
+
+Zároveň bylo také ověřeno na reálných malwarech, že změny zdrojového kódu pomocí obfuskace opravdu znemožňují odhalení malware pomocí statických metod.
+Konkrétně autoři využili tři červy (MyDoom.A, MyDoom.AF, Klez), které upravili popsanými metodami a ověřili, že fungují i nadále správně, a dále čtyř běžných antivirů (McAfee Anti-Virus, Kaspersky Anti-Virus, AntiVir Personal Edition a Ikarus Virus Utilities) a jednoho pokročilého nástroje analýzy software (IDA Pro) \cite{stateOfArt4}. 
+
+Po otestování tři obfuskovaných červů jednotlivými antiviry se ukázalo, že McAfee identifikoval tyto červy na základě jejich podpisu. Poté co byl podpis v dané sekci upraven, k odhalení už nedošlo. Oproti tomu AntiVir kontroluje i další parametr. Pokud byly změněny oba tyto parametry nedošlo k identifikaci.
+Nástroj statické analýzy nejprve rozebere binární kód pomocí IDA Pro a následně provede modelovou analýzu. (zjistí, zda se nevolá nějaká sekvence funkcionalit Windows API, například pro kopírování do jiné části systému pomocí GetModuleFIleNameA a CopyFileA). Identifikace na základě sémantické sekvence kódu je odolná vůči změně uspořádání. I přes to po obfuskaci červu nebyl nástroj schopen identifikovat žádného z nich \cite{stateOfArt4}. (volání knihoven již nebylo identifikováno)
+
+Autoři předpokládají možná řešení. Jednim z nich je možnost označit programy, které jsou obfuskovaný jako podezřelé, to se ovšem pojí s řadou falešně pozitivních výsledků. Slibnějším přístupem, dle autorů, je dynamická analýza, kdy se obfuskace stává bezpředmětnou.
+
+\subsection{Analýza výkonu strojového učení a algoritmu pro rozpoznávání schémat pro klasifikaci malwaru}
+\label{stateofArt5_images}
+
+Autoři \cite{stateOfArt5} pomocí imagery jsou kódy vizualizovány jako binární schémata, ta jsou dále upravena jako 2D matice a následně transformována do formy obrázku (velikosti 256x16). Ukazuje se, že u malwaru ze stejné rodiny mají obrázky podobnou texturu. Klasifikace malwaru je prováděna pomocí PCA (Principle Component Analysis nebo také analýza hlavních komponent), kNN, ANN (Artificial Neural Networks tedy umělých neuronových sítí) a SVM (Support Vector Machine – metoda podpůrných vektorů). Nakonec jsou srovnány výstupy jednotlivých metod klasifikace. Jako nejlepší vychází z porovnání kNN. Dále je také zjištěno, že analýza obrázku namísto kódu zkracuje dobu výpočtu bez toho, aby došlo ke snížení výkonu.
+
+\subsection{Technologické sítě a šíření počítačových virů}
+\label{stateofArt6_virus}
+
+V tomto textu se autoři \cite{stateOfArt6} zabývají pochopením struktury, ve které se šíří malware, protože podobně jako u lidské nákazy je pro kontrolu šíření infekce stěžejní pochopit, v jaké struktuře se~nákaza šíří. Kontrola šíření infekce pomocí náhodné vakcinace je pro zařízení připojená například k internetu či world wide webu nedostatečná, protože se jedná o takzvané sítě bez měřítka. Viry navíc mohou cíleně strategie obcházet, například se mohou začít šířit v sítích s měřítkem namísto sítí bez měřítka. Autoři dále porovnávají čtyři typy sítí – síť, která využívá propojení přes IP adresu, síť, ve které může administrátor číst a přepisovat data na disku, síť, která propojuje uživatele pomocí emailových adres v jejich adresáři a síť, kde je propojení uživatelů dáno nedávnou výměnou emailu. Tyto typy sítí jsou mezi sebou porovnány a na základě jejich topologie a distribuce jsou navrženy strategie vakcinace. Ku příkladu je zmíněn throttling, který umožňuje omezit množství nových připojení a tím zabraňuje rychlému šíření malwaru v síti. To umožňuje nový malware prozkoumat a vyvinout obranné mechanismy (například aktualizovat software).
+
+\subsection{Analýza a klasifikace malwaru: průzkum}
+\label{stateofArt7_zaklady}
+
+V tomto textu \cite{stateOfArt7} je uveden přehled technik a přístupů k analýze a klasifikaci škodlivého softwaru. Jsou zde zmíněny také nástroje, které je možné využít jak pro statickou (IDA Pro, OllyDbg, LordPE nebo OllyDump), tak i pro dynamickou analýzu (Process Monitor, Capture BAT, Proces Explorer, Process Hackrreplace, Wireshark, Regshot, Norman Sandbox, CW Sandbox, Anubis, TTAnalyzer, Ether a ThreatExpert). Autoři také uvádí různé přístupy strojového učení (Association Rule, Support Vector Machine, Decision Tree, Random Forest, Naive Bayes, Clustering).

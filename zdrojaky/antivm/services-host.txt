@@ -1,0 +1,9 @@
+DisplayName              
+-----------              
+VirtualBox system service
+
+ProcessName
+-----------
+VirtualBoxVM
+VirtualBoxVM
+VirtualBoxVM
