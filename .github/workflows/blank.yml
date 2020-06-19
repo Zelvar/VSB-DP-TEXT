@@ -11,8 +11,7 @@ jobs:
         with:
           root_file: main.tex
       - name: Release
-        id: upload-release-asset 
-      - uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v2
         with:
           name: my-release
           path: main.pdf
